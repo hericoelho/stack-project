@@ -1,0 +1,15 @@
+services:
+  bff:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-bff
+    ports:
+      - "3000:3000"
+    networks:
+      - back-network
+
+networks:
+  back-network:
+    external: true # Diz ao Compose para usar a rede já criada pelo arquivo incluído
+    name: shared-back-network

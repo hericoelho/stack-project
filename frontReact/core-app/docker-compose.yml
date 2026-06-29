@@ -1,0 +1,19 @@
+include:
+  - ../remote-app/docker-compose.yml
+  # - /var/home/dev/Documentos/Projetos/mySystem/frontReact/remote-app/docker-compose.yml
+
+services:
+  host-app:
+    container_name: mfe-host-preview
+    build:
+      # context: .
+      # context: /var/home/dev/Documentos/Projetos/mySystem/frontReact/host-app
+      context: ${PWD}
+      dockerfile: Dockerfile
+    command: npm run preview -- --port 5000 --host 
+    ports:
+      - "5000:5000"
+    # ⚠️ ATENÇÃO: NÃO monte volumes (.:/app) aqui se você quiser testar o build estático puro.
+    # Se você mapear o volume local, a pasta dist gerada no container pode ser sobrescrevida ou apagada pela sua pasta local.
+    depends_on:
+      - remote-app 

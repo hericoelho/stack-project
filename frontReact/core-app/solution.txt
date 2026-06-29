@@ -1,0 +1,42 @@
+Excelente escolha! Como o seu Core (Host) usará TypeScript + React Compiler, os frontends remotos (os microfrontends que serão carregados dentro dele) devem, obrigatoriamente, seguir a mesma linha de compatibilidade para evitar problemas de quebra de código em produção.
+Ao criar o frontend remoto na CLI, escolha exatamente:
+React ➔ TypeScript + React Compiler
+Aqui está o porquê dessa escolha ser a correta e como lidar com o roteamento nela:
+## 🎯 Por que manter a mesma variante?
+
+   1. Mesma Versão do React (Singleton): Em microfrontends, o React precisa ser um Singleton (uma única instância compartilhada na memória gerenciada pelo Core). Escolher essa variante garante que ambos usem a mesma versão (React 19+). [1, 2] 
+   2. Harmonia do Compilador: O React Compiler altera a forma como os componentes são otimizados sob o capô. Misturar código compilado pelo React Compiler com código puramente em JavaScript comum dentro da mesma árvore de componentes pode gerar comportamentos inesperados de renderização. [3, 4] 
+
+------------------------------
+## 🛣️ Como vai funcionar o React Router nesse cenário?
+Como você optou por instalar o React Router manualmente depois, você tem duas estratégias para o roteamento do seu microfrontend remoto:
+## Estratégia A: O Remoto expõe apenas Páginas/Componentes limpos (Recomendado ⭐)
+Nesta abordagem, o seu frontend remoto não possui um roteador próprio. Ele é apenas um repositório de páginas limpas.
+
+* No Remoto: Você cria os seus componentes normalmente (ex: Dashboard.tsx, Profile.tsx) usando a variante escolhida.
+* No Core (Host): É o Core quem importa essas páginas via Module Federation e as registra nas rotas do React Router central.
+* Vantagem: Evita qualquer conflito de histórico do navegador e mantém o pacote final do microfrontend extremamente leve. [5, 6, 7, 8] 
+
+## Estratégia B: O Remoto expõe um sub-roteador (Rotas Aninhadas)
+Se o seu microfrontend remoto for muito grande e precisar gerenciar suas próprias sub-rotas internas, você precisará usar o padrão de Rotas Aninhadas (Nested Routes).
+
+* No Remoto: Você instala o react-router como uma dependência compartilhada (para usar o mesmo contexto do Core). Em vez de criar um roteador do zero com <BrowserRouter>, você exporta apenas as definições de rotas ou usa o componente <Outlet />.
+* No Core (Host): O Core cria uma rota genérica (ex: /sistema-remoto/*) e renderiza o bloco de rotas que o remoto enviou. [5, 9, 10] 
+
+------------------------------
+Se você quiser estruturar essa integração agora, me conte:
+
+* Você pretende usar o Module Federation do Vite para conectar esses projetos?
+* Os seus microfrontends remotos terão muitas sub-páginas internas ou serão telas mais diretas?
+
+
+[1] [https://dev.to](https://dev.to/kerryconvery/module-federation-learnings-37oi)
+[2] [https://namastedev.com](https://namastedev.com/blog/creating-micro-frontends-with-react-5/)
+[3] [https://www.youtube.com](https://www.youtube.com/watch?v=rB5OkIjPrjY&t=15)
+[4] [https://react.dev](https://react.dev/learn/react-compiler/installation)
+[5] [https://www.youtube.com](https://www.youtube.com/watch?v=uRKUxZQ74os)
+[6] [https://www.youtube.com](https://www.youtube.com/watch?v=RuiuYN4JGNg&t=166)
+[7] [https://dev.to](https://dev.to/aemarajan/setting-up-the-remote-project-for-react-micro-frontends-54i6)
+[8] [https://www.reddit.com](https://www.reddit.com/r/reactjs/comments/1g7dev3/strategy_to_manage_reactrouter_in/)
+[9] [https://stackoverflow.com](https://stackoverflow.com/questions/77383292/i-want-to-setup-route-in-my-project-react-typescript-react-router-dom)
+[10] [https://www.youtube.com](https://www.youtube.com/watch?v=G7UzhrNX60o&t=13)

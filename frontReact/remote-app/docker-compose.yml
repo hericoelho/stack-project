@@ -1,0 +1,13 @@
+services:
+  remote-app:
+    container_name: mfe-remote-preview
+    build:
+      # context: .
+      # context: /var/home/dev/Documentos/Projetos/mySystem/frontReact/remote-app
+      context: ../remote-app
+      dockerfile: Dockerfile
+    command: npm run preview -- --port 5001 --host 
+    ports:
+      - "5001:5001"
+    # ⚠️ ATENÇÃO: NÃO monte volumes (.:/app) aqui se você quiser testar o build estático puro.
+    # Se você mapear o volume local, a pasta dist gerada no container pode ser sobrescrevida ou apagada pela sua pasta local.
