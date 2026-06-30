@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import RemoteAppEntry from './RemoteAppEntry';
 
 function App() {
@@ -15,6 +15,9 @@ function App() {
 
         <div>
           <Routes>
+            {/* Redireciona da raiz para /remote */}
+            <Route index element={<Navigate to="/remote/" replace />} />
+
             {/* Rota nativa do Remote */}
             <Route path="/remote/*" element={
               <Suspense fallback={<div>Carregando Pagina...</div>}>

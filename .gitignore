@@ -1,0 +1,5 @@
+# Bloqueia qualquer pasta 'data' dentro de qualquer subdiretório
+**/data/
+**/.dbshell
+**/diagnostic.data/
+**/journal/
