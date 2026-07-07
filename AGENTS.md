@@ -13,8 +13,9 @@ frontReact/
 
 ## Per-package AGENTS.md
 
-Each front-end app has its own `AGENTS.md` with accurate per-package commands and quirks. Read them:
+Each sub-project has its own `AGENTS.md` with accurate per-package commands and quirks. Read them:
 
+- `backSpring/AGENTS.md`
 - `frontReact/core-app/AGENTS.md`
 - `frontReact/remote-app/AGENTS.md`
 
@@ -28,10 +29,12 @@ Each front-end app has its own `AGENTS.md` with accurate per-package commands an
 
 ## backSpring (Spring Boot)
 
-- Java 17, Maven wrapper (`./mvnw`), Lombok (annotation processor auto-configured).
+See `backSpring/AGENTS.md` for full architecture and conventions. TL;DR:
+
+- Hexagonal + Clean Architecture: `domain/` → `application/` → `infrastructure/` (Spring annotations only here).
+- Java 17, Maven wrapper (`./mvnw`), Lombok. Constructor injection only (`@RequiredArgsConstructor`).
 - `./mvnw spring-boot:run` for dev, `./mvnw test` for tests.
-- Connects to `mongodb` host on port 27017 (Docker network), credentials via `MONGO_USER` / `MONGO_PASSWORD` env vars.
-- Single test: `BackApplicationTests.contextLoads()` — smoke test that needs MongoDB running.
+- Requires MongoDB running (`shared-mongo-network` via `mongoBD/docker-compose.yml`).
 
 ## bff-nest-js (NestJS BFF)
 
