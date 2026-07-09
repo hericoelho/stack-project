@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home';
+import Home from './pages/home/Home.page.tsx';
 
 // Carregamento assíncrono (Lazy) do módulo federado
 const RemoteAppEntry = React.lazy(() => import('remoteApp/RemoteAppEntry'));

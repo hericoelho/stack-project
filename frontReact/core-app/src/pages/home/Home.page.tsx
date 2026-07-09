@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import reactLogo from '../assets/react.svg'
-import viteLogo from '../assets/vite.svg'
-import heroImg from '../assets/hero.png'
-import './AltPage.css'
+import reactLogo from '../../assets/react.svg'
+import viteLogo from '../../assets/vite.svg'
+import heroImg from '../../assets/hero.png'
+import './Home.page.css'
 
-function AltPage() {
+function Home() {
   const [count, setCount] = useState(0)
 
   return (
@@ -16,7 +16,7 @@ function AltPage() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1 className="title">Alt Page</h1>
+          <h1>Host Page</h1>
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
@@ -119,4 +119,4 @@ function AltPage() {
   )
 }
 
-export default AltPage
+export default Home
