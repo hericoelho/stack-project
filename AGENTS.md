@@ -1,5 +1,14 @@
 # mySystem
 
+## Quick start
+
+```sh
+make exec     # sobe todos os projetos via Docker (mongo → backSpring + bff → core-app)
+make down     # derruba todos
+```
+
+Cada subdiretório também tem seu próprio `makefile` para subir apenas aquele serviço.
+
 Monorepo with 4 packages (startup order: mongo → backSpring + bff → core-app).
 
 ```

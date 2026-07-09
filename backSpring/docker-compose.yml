@@ -1,15 +1,11 @@
-include:
-  # - ./../mongoDB/docker-compose.yml
-  - /var/home/dev/Documentos/Projetos/mySystem/mongoBD/docker-compose.yml
-
 services:
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: spring-backend
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
     environment:
       MONGO_USER: mongoUser
       MONGO_PASSWORD: mongoPwd
@@ -18,13 +14,11 @@ services:
     networks:
       - mongo-network # Conecta o backend na mesma rede do banco
       - back-network
-    depends_on:
-      mongodb:
-        condition: service_healthy
 
 networks:
   mongo-network:
     external: true # Diz ao Compose para usar a rede já criada pelo arquivo incluído
     name: shared-mongo-network
   back-network:
+    name: shared-back-network
     driver: bridge

@@ -6,6 +6,8 @@ services:
     container_name: nest-bff
     ports:
       - "3000:3000"
+    environment:
+      BACKEND_BASE_URL: http://backend:8080/api
     networks:
       - back-network
 

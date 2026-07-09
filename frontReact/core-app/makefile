@@ -1,0 +1,6 @@
+export ROOT_DIR := $(shell git rev-parse --show-toplevel)
+COMPOSE := $(shell command -v podman >/dev/null && echo "podman compose" || echo "docker compose")
+
+exec:
+	cd $(ROOT_DIR)/frontReact/remote-app && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) up 

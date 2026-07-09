@@ -2,6 +2,15 @@
 
 Spring Boot 3.5.16 / Java 17 + MongoDB. **Hexagonal Architecture (Ports & Adapters) + Clean Architecture + SOLID.**
 
+## Quick start
+
+```sh
+make exec     # sobe mongoDB + backSpring via Docker
+make down     # derruba
+```
+
+`make exec` na raiz do monorepo sobe todos os projetos de uma vez.
+
 ## Commands
 
 ```sh

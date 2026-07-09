@@ -2,6 +2,15 @@
 
 Vite + React 19 + TypeScript 6 + React Compiler, acting as a **Module Federation host**.
 
+## Quick start
+
+```sh
+make exec     # sobe remote-app + core-app via Docker
+make down     # derruba
+```
+
+`make exec` na raiz do monorepo sobe todos os projetos de uma vez.
+
 ## Commands
 
 | Command | What it does |

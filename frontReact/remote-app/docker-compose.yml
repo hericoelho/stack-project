@@ -2,9 +2,7 @@ services:
   remote-app:
     container_name: mfe-remote-preview
     build:
-      # context: .
-      # context: /var/home/dev/Documentos/Projetos/mySystem/frontReact/remote-app
-      context: ../remote-app
+      context: .
       dockerfile: Dockerfile
     command: npm run preview -- --port 5001 --host 
     ports:

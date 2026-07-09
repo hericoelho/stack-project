@@ -28,20 +28,18 @@ MongoDB → Spring Boot API → NestJS BFF → React (Host + Remote)
 ### Docker (toda a stack)
 
 ```sh
-# 1. Banco de dados
-cd mongoBD && docker compose up -d
-
-# 2. Backend Spring Boot
-cd backSpring && docker compose up -d
-
-# 3. BFF NestJS
-cd bff-nest-js && docker compose up -d
-
-# 4. Micro-frontends (o host já inclui o remote)
-cd frontReact/core-app && docker compose up -d
+make exec     # sobe todos os projetos na ordem correta
+make down     # derruba todos
 ```
 
-**Ordem obrigatória:** mongo → backSpring + bff (paralelo) → core-app (depende do remote).
+Ou individualmente em cada diretório:
+
+```sh
+cd mongoBD              && make exec
+cd backSpring           && make exec
+cd bff-nest-js          && make exec
+cd frontReact/core-app  && make exec
+```
 
 ### Desenvolvimento local
 

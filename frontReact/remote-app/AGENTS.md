@@ -2,6 +2,15 @@
 
 Vite + React 19 + TypeScript 6.0 app. Module federation **remote** with its own nested React Router.
 
+## Quick start
+
+```sh
+make exec     # sobe remote-app via Docker
+make down     # derruba
+```
+
+`make exec` na raiz do monorepo sobe todos os projetos de uma vez.
+
 ## Commands
 
 ```sh
