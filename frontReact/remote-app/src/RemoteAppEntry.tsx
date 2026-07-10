@@ -3,6 +3,7 @@ import Home from './pages/home/Home.page';
 import AltPage from './pages/alt/Alt.page';
 import ActivityList from './pages/activities/ActivityList.page'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import CreateActivityForm from './pages/activities/CreateActivityForm.page';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,7 +26,8 @@ export default function RemoteAppEntry() {
         <nav>
           <Link to="/remote/">Início do remoto</Link> |{' '}
           <Link to="/remote/alt">Página Alternativa</Link> |{' '}
-          <Link to="/remote/activities">Lista de Atividades</Link>
+          <Link to="/remote/activities">Lista de Atividades</Link> |{' '}
+          <Link to="/remote/activities/create">Criar Atividade</Link>
         </nav>
 
         <hr />
@@ -36,6 +38,7 @@ export default function RemoteAppEntry() {
           <Route index element={<Home />} /> 
           <Route path="alt" element={<AltPage />} />
           <Route path="activities" element={<ActivityList />} />
+          <Route path="activities/create" element={<CreateActivityForm />} />
         </Routes>
       </div>
     </QueryClientProvider>

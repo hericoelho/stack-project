@@ -6,3 +6,9 @@ export interface Activity {
   type: string;
   createdAt: string;
 }
+
+export interface CreateActivityRequest {
+  title: string;
+  description: string;
+  type: string;
+}
