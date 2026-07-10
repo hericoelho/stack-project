@@ -6,7 +6,7 @@ exec:
 	cd $(ROOT_DIR)/backSpring && $(COMPOSE) up -d
 	cd $(ROOT_DIR)/bff-nest-js && $(COMPOSE) up -d
 	cd $(ROOT_DIR)/frontReact/remote-app && $(COMPOSE) up -d
-	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) up
 
 down:
 	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) down

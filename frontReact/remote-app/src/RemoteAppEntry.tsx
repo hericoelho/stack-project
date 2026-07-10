@@ -4,6 +4,7 @@ import AltPage from './pages/alt/Alt.page';
 import ActivityList from './pages/activities/ActivityList.page'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CreateActivityForm from './pages/activities/CreateActivityForm.page';
+import './remote.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,22 +20,19 @@ const queryClient = new QueryClient({
 export default function RemoteAppEntry() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div style={{ padding: '20px', border: '2px dashed blue' }}>
-        <h3>Módulo Remoto</h3>
+      <div className="p-5">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Módulo Remoto</h3>
         
-        {/* Navegação interna usando Links relativos (sem "/" no início) */}
-        <nav>
-          <Link to="/remote/">Início do remoto</Link> |{' '}
-          <Link to="/remote/alt">Página Alternativa</Link> |{' '}
-          <Link to="/remote/activities">Lista de Atividades</Link> |{' '}
-          <Link to="/remote/activities/create">Criar Atividade</Link>
+        <nav className="flex flex-wrap justify-center gap-3 text-sm mb-4">
+          <Link to="/remote/" className="text-indigo-600 dark:text-indigo-400 hover:underline">Início do remoto</Link>
+          <Link to="/remote/alt" className="text-indigo-600 dark:text-indigo-400 hover:underline">Página Alternativa</Link>
+          <Link to="/remote/activities" className="text-indigo-600 dark:text-indigo-400 hover:underline">Lista de Atividades</Link>
+          <Link to="/remote/activities/create" className="text-indigo-600 dark:text-indigo-400 hover:underline">Criar Atividade</Link>
         </nav>
 
-        <hr />
+        <hr className="border-gray-200 dark:border-gray-700 mb-4" />
 
-        {/* Roteador interno */}
         <Routes>
-          {/* Equivale ao caminho base definido pelo Host */}
           <Route index element={<Home />} /> 
           <Route path="alt" element={<AltPage />} />
           <Route path="activities" element={<ActivityList />} />
