@@ -1,12 +1,14 @@
 import { defineConfig } from 'vite'
 import federation from '@originjs/vite-plugin-federation'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   build: {
     target: 'es2022',
   },
   plugins: [
+    tailwindcss(),
     react(),
     federation({
       name: 'remoteApp',
