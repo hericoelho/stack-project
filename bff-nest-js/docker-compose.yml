@@ -8,6 +8,9 @@ services:
       - "3000:3000"
     environment:
       BACKEND_BASE_URL: http://backend:8080/api
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: rabbitUser
+      RABBITMQ_PASS: rabbitPwd
     networks:
       - back-network
 
