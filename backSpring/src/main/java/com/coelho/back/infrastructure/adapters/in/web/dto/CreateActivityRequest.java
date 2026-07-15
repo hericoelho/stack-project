@@ -4,10 +4,5 @@ import com.coelho.back.domain.model.ActivityType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record CreateActivityRequest(
-        @NotBlank
-        String title,
-        String description,
-        @NotNull
-        ActivityType type
-) { }
+public record CreateActivityRequest(@NotBlank String title, String description, @NotNull ActivityType type) {
+}

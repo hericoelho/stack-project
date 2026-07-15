@@ -10,10 +10,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ListActivitiesUseCaseImpl implements ListActivitiesUseCase {
 
-    private final ActivityRepositoryPort repository;
+	private final ActivityRepositoryPort repository;
 
-    @Override
-    public List<Activity> execute() {
-        return repository.findAll();
-    }
+	@Override
+	public List<Activity> execute() {
+		return repository.findAll();
+	}
+
 }

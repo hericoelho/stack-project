@@ -9,11 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ActivityMapper {
 
-    public Activity toDomain(CreateActivityRequest request) {
-        return Activity.create(request.title(), request.description(), request.type());
-    }
+	public Activity toDomain(CreateActivityRequest request) {
+		return Activity.create(request.title(), request.description(), request.type());
+	}
 
-  public ActivityResponse toResponse(Activity activity) {
-        return ActivityResponse.fromDomain(activity);
-    }
+	public ActivityResponse toResponse(Activity activity) {
+		return ActivityResponse.fromDomain(activity);
+	}
+
 }

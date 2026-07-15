@@ -6,22 +6,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class ActivityRepositoryAdapter implements ActivityRepositoryPort {
 
-    private final SpringDataActivityRepository  repository;
+	private final SpringDataActivityRepository repository;
 
-    @Override
-    public Activity save(Activity activity) {
-        var document = ActivityDocument.fromDomain(activity);
-        var saved = repository.save(document);
-        return saved.toDomain();
-    }
+	@Override
+	public Activity save(Activity activity) {
+		var document = ActivityDocument.fromDomain(activity);
+		var saved = repository.save(document);
+		return saved.toDomain();
+	}
 
-    @Override
-    public List<Activity> findAll() {
-        return repository.findAll().stream().map(ActivityDocument::toDomain).toList();
-    }
+	@Override
+	public List<Activity> findAll() {
+		return repository.findAll().stream().map(ActivityDocument::toDomain).toList();
+	}
+
+	@Override
+	public Optional<Activity> findById(String id) {
+		return repository.findById(id).map(ActivityDocument::toDomain);
+	}
+
 }

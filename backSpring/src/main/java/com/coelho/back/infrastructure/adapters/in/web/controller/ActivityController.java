@@ -17,24 +17,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ActivityController {
 
-    private final CreateActivityUseCase createActivityUseCase;
-    private final ListActivitiesUseCase listActivitiesUseCase;
-    private final ActivityMapper activityMapper;
+	private final CreateActivityUseCase createActivityUseCase;
 
-    @PostMapping
-    public ResponseEntity<ActivityResponse> create(@RequestBody @Valid CreateActivityRequest request) {
-        var activity = activityMapper.toDomain(request);
-        var saved = createActivityUseCase.execute(activity);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(activityMapper.toResponse(saved));
-    }
+	private final ListActivitiesUseCase listActivitiesUseCase;
 
-    @GetMapping
-    public ResponseEntity<List<ActivityResponse>> list() {
-        var activities = listActivitiesUseCase.execute();
-        var response = activities.stream()
-                .map(activityMapper::toResponse)
-                .toList();
-        return ResponseEntity.ok(response);
-    }
+	private final ActivityMapper activityMapper;
+
+	@PostMapping
+	public ResponseEntity<ActivityResponse> create(@RequestBody @Valid CreateActivityRequest request) {
+		var activity = activityMapper.toDomain(request);
+		var saved = createActivityUseCase.execute(activity);
+		return ResponseEntity.status(HttpStatus.CREATED).body(activityMapper.toResponse(saved));
+	}
+
+	@GetMapping
+	public ResponseEntity<List<ActivityResponse>> list() {
+		var activities = listActivitiesUseCase.execute();
+		var response = activities.stream().map(activityMapper::toResponse).toList();
+		return ResponseEntity.ok(response);
+	}
+
 }

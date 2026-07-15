@@ -1,8 +1,7 @@
 package com.coelho.back.domain.model;
 
 public enum ActivityType {
-    STUDY,
-    PROJECT,
-    READING,
-    EVENT
+
+	STUDY, PROJECT, READING, EVENT
+
 }
