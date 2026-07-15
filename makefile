@@ -4,6 +4,14 @@ COMPOSE := $(shell command -v podman >/dev/null && echo "podman compose" || echo
 exec:
 	cd $(ROOT_DIR)/mongoDB && $(COMPOSE) up -d
 	cd $(ROOT_DIR)/backSpring && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/queueRabbitMQ && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/bff-nest-js && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/frontReact/remote-app && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) up
+
+without-queue:
+	cd $(ROOT_DIR)/mongoDB && $(COMPOSE) up -d
+	cd $(ROOT_DIR)/backSpring && $(COMPOSE) up -d
 	cd $(ROOT_DIR)/bff-nest-js && $(COMPOSE) up -d
 	cd $(ROOT_DIR)/frontReact/remote-app && $(COMPOSE) up -d
 	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) up
@@ -12,5 +20,6 @@ down:
 	cd $(ROOT_DIR)/frontReact/core-app && $(COMPOSE) down
 	cd $(ROOT_DIR)/frontReact/remote-app && $(COMPOSE) down
 	cd $(ROOT_DIR)/bff-nest-js && $(COMPOSE) down
+	cd $(ROOT_DIR)/queueRabbitMQ && $(COMPOSE) down
 	cd $(ROOT_DIR)/backSpring && $(COMPOSE) down
 	cd $(ROOT_DIR)/mongoDB && $(COMPOSE) down
