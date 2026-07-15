@@ -100,7 +100,7 @@ Onde foi parar cada pasta do Spring Boot tradicional?
 
 ## RabbitMQ & Messaging
 
-- **Docker service:** `rabbitmq` (`rabbitmq:3-management`), portas 5672 (AMQP) e 15672 (Management UI).
+- **Docker service:** `rabbitmq` (`rabbitmq:management-alpine`), portas 5672 (AMQP) e 15672 (Management UI).
 - **Env vars:** `RABBITMQ_USER`, `RABBITMQ_PASSWORD` (injetadas via docker-compose).
 - **Config:** `infrastructure/config/RabbitMQConfig.java` — Queue, Exchange, Binding + `@EnableRetry`.
 - **Scheduler:** `infrastructure/config/SchedulerConfig.java` — `@EnableScheduling` necessário para expor o bean `TaskScheduler`.

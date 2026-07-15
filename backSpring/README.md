@@ -66,7 +66,6 @@ POST /api/v1/activities → CREATE (PREPARING) → aguarda 2min
 {
   "activityId": "665a1b2c3d4e5f6a7b8c9d0e",
   "title": "Estudar Spring Boot",
-  "oldStatus": "PREPARING",
   "newStatus": "PLAN",
   "timestamp": "2026-07-14T22:02:00Z"
 }
@@ -160,7 +159,7 @@ Requer MongoDB e RabbitMQ rodando separadamente (ex: via Docker).
 
 ## RabbitMQ
 
-- **Serviço Docker:** `rabbitmq` (`rabbitmq:3-management`)
+- **Serviço Docker:** `rabbitmq` (`rabbitmq:management-alpine`)
 - **Portas:** 5672 (AMQP), 15672 (Management UI — `http://localhost:15672`)
 - **Credenciais Management UI:** `rabbitUser` / `rabbitPwd`
 - **Queue:** `activity.status.changed` (durável)
