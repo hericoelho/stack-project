@@ -17,6 +17,8 @@ make down     # derruba
 ./mvnw spring-boot:run   # dev (needs MongoDB on mongodb:27017)
 ./mvnw test              # all tests
 ./mvnw test -Dtest=BackApplicationTests  # single test
+./mvnw spring-javaformat:apply            # format all code
+./mvnw validate                            # validate formatting (runs automatically)
 ```
 
 Docker: `docker compose up --build -d` in this directory (includes `mongoBD/docker-compose.yml`).
@@ -88,6 +90,7 @@ Onde foi parar cada pasta do Spring Boot tradicional?
 | Messaging DTOs | Placed in `infrastructure/adapters/out/rabbitmq/` — not in `domain`. Messages are transport concerns. |
 | Retry | Use `@Retryable` on adapter methods, never on use cases. `@EnableRetry` lives in config. |
 | Scheduling | `@EnableScheduling` in dedicated `SchedulerConfig.java`. Use `TaskScheduler` bean, never `Thread.sleep`. |
+| Formatting | Spring Java Format 0.0.47 enforced at `validate` phase. Run `./mvnw spring-javaformat:apply` before commit. IntelliJ plugin auto-detects from `pom.xml`. |
 
 ## MongoDB
 
@@ -130,6 +133,7 @@ POST /api/v1/activities → CREATE (PREPARING) → schedule delay 2min
 | `spring-boot-starter-amqp` | RabbitMQ integration |
 | `spring-retry` | `@Retryable` / `@Recover` support |
 | `spring-aspects` | AOP proxy para `@Retryable` funcionar |
+| `spring-javaformat-maven-plugin` | Code formatting enforce at `validate` phase |
 
 ### Arquivos-chave da feature
 

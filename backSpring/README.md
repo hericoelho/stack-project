@@ -74,6 +74,29 @@ POST /api/v1/activities → CREATE (PREPARING) → aguarda 2min
 
 ---
 
+## Code Formatting — Spring Java Format
+
+O projeto utiliza [Spring Java Format](https://github.com/spring-io/spring-javaformat) para manter consistência de estilo (120 chars/linha, whitespace conventions).
+
+### Comandos
+
+```sh
+# Formatar todo o código
+./mvnw spring-javaformat:apply
+
+# Validar formatação (roda automaticamente no build via phase validate)
+./mvnw validate
+
+# Skip temporário
+./mvnw validate -Dspring-javaformat.skip=true
+```
+
+### IntelliJ IDEA
+
+Instale o plugin **"Spring Java Format"** (https://github.com/spring-io/spring-javaformat#intellij-idea). O plugin se ativa automaticamente ao detectar o plugin Maven no `pom.xml` e exibe um ícone na status bar. Use `Code > Reformat Code` para formatar.
+
+---
+
 ## Como Rodar
 
 ### Pré-requisitos
@@ -186,4 +209,5 @@ com.coelho.back/
 | RabbitMQ | 3.x (management) |
 | Lombok | — |
 | spring-retry | — |
+| spring-javaformat | 0.0.47 |
 | Maven | 3.9.6 (wrapper) |
