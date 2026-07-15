@@ -38,12 +38,17 @@ com.coelho.back/
 │
 ├── infrastructure/              # 3. DETALHES: Onde o Spring Boot e o mundo externo vivem
 │   ├── config/                  # Configurações do Spring e injeção manual de Beans
+│   │   ├── UseCaseConfig.java   # Wires dos UseCases (sem @Service)
+│   │   ├── RabbitMQConfig.java  # Queue, Exchange, Binding, @EnableRetry
+│   │   └── SchedulerConfig.java # @EnableScheduling (TaskScheduler bean)
 │   ├── adapters/                # Adaptadores (Implementações das portas)
 │   │   ├── in/                  # Adaptadores de Entrada (ex: Controllers, Listeners de fila)
 │   │   │   ├── web/             # Antigo 'controller' + seus 'dtos' de request/response
 │   │   │   └── queue/           # Consumidores de mensageria
 │   │   └── out/                 # Adaptadores de Saída (ex: Banco de dados, APIs externas)
 │   │       ├── database/        # Antigo 'repository' (Spring Data) + 'entities' (JPA)
+│   │       ├── rabbitmq/        # Publisher de eventos (com @Retryable)
+│   │       ├── scheduler/       # TaskScheduler adapter (delayed tasks)
 │   │       └── client/          # Clientes HTTP (Feign, WebClient) para APIs externas
 │   └── mapper/                  # Conversores entre Objetos Web/JPA e Objetos de Domínio
 │
@@ -80,9 +85,62 @@ Onde foi parar cada pasta do Spring Boot tradicional?
 | MongoDB entities | Inside `infrastructure/adapters/output/persistence` — **not** in `domain`. Domain entities are pure POJOs. |
 | Mapping | Converter/mapper layer between persistence documents and domain entities. |
 | Tests | `@SpringBootTest` for integration; pure JUnit 5 + Mockito for unit tests (preferred for `domain` + `application`). |
+| Messaging DTOs | Placed in `infrastructure/adapters/out/rabbitmq/` — not in `domain`. Messages are transport concerns. |
+| Retry | Use `@Retryable` on adapter methods, never on use cases. `@EnableRetry` lives in config. |
+| Scheduling | `@EnableScheduling` in dedicated `SchedulerConfig.java`. Use `TaskScheduler` bean, never `Thread.sleep`. |
 
 ## MongoDB
 
 - Env vars: `MONGO_USER`, `MONGO_PASSWORD`, `SPRING_DATA_MONGODB_URI` (see `application.properties`).
 - Docker host `mongodb`, port `27017`, database `meubanco`, auth DB `admin`.
 - Smoke test `BackApplicationTests.contextLoads()` needs MongoDB running.
+
+## RabbitMQ & Messaging
+
+- **Docker service:** `rabbitmq` (`rabbitmq:3-management`), portas 5672 (AMQP) e 15672 (Management UI).
+- **Env vars:** `RABBITMQ_USER`, `RABBITMQ_PASSWORD` (injetadas via docker-compose).
+- **Config:** `infrastructure/config/RabbitMQConfig.java` — Queue, Exchange, Binding + `@EnableRetry`.
+- **Scheduler:** `infrastructure/config/SchedulerConfig.java` — `@EnableScheduling` necessário para expor o bean `TaskScheduler`.
+
+### Queue & Exchange
+
+| Item | Valor |
+|------|-------|
+| Queue | `activity.status.changed` |
+| Exchange | `activity.exchange` (topic) |
+| Routing key | `activity.status.changed` |
+
+### Activity Status Transition Flow
+
+```
+POST /api/v1/activities → CREATE (PREPARING) → schedule delay 2min
+                                                        ↓
+                                              UPDATE to PLAN + publish to RabbitMQ
+```
+
+- Delay configurável: `activity.status.transition.delay-ms` (default: 120000 = 2min).
+- Retry na publicação: `@Retryable(maxAttempts=3, backoff=@Backoff(delay=2000, multiplier=2))`.
+- `@Recover` loga erro se todas as tentativas falharem.
+- A transição é orquestrada por `UpdateActivityStatusUseCaseImpl`: busca activity, valida status PREPARING, altera para PLAN, salva, publica evento.
+
+### Dependencies (pom.xml)
+
+| Artifact | Purpose |
+|----------|---------|
+| `spring-boot-starter-amqp` | RabbitMQ integration |
+| `spring-retry` | `@Retryable` / `@Recover` support |
+| `spring-aspects` | AOP proxy para `@Retryable` funcionar |
+
+### Arquivos-chave da feature
+
+| Camada | Arquivo | Responsabilidade |
+|--------|---------|-----------------|
+| domain/model | `Activity.java` | `withStatus()` — cria instância com novo status |
+| application/ports/in | `UpdateActivityStatusUseCase.java` | Porta de entrada: transição de status |
+| application/ports/out | `ActivityEventPublisherPort.java` | Porta: publicar evento na fila |
+| application/ports/out | `ScheduleActivityTransitionPort.java` | Porta: agendar transição delayed |
+| application/usecase | `UpdateActivityStatusUseCaseImpl.java` | find → withStatus → save → publish |
+| application/usecase | `CreateActivityUseCaseImpl.java` | Após save, agenda transição via scheduler |
+| infrastructure/out/rabbitmq | `RabbitMQActivityEventPublisher.java` | `@Retryable` publish com `RabbitTemplate` |
+| infrastructure/out/rabbitmq | `ActivityStatusChangedMessage.java` | DTO da mensagem (record) |
+| infrastructure/out/scheduler | `TaskSchedulerActivityTransitionAdapter.java` | Usa `TaskScheduler` para delayed execution |

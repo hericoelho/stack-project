@@ -13,7 +13,7 @@ Monorepo with 4 packages (startup order: mongo → backSpring + bff → core-app
 
 ```
 mongoBD/          — MongoDB 4.4 + mongo-express (port 8081)
-backSpring/       — Spring Boot 3.5.16 / Java 17, MongoDB data layer
+backSpring/       — Spring Boot 3.5.16 / Java 17, MongoDB data layer + RabbitMQ messaging
 bff-nest-js/      — NestJS 11 BFF (port 3000), Express platform
 frontReact/
   core-app/       — Module Federation HOST (Docker: 5000, dev: 5173), React 19, Vite 6
@@ -44,6 +44,7 @@ See `backSpring/AGENTS.md` for full architecture and conventions. TL;DR:
 - Java 17, Maven wrapper (`./mvnw`), Lombok. Constructor injection only (`@RequiredArgsConstructor`).
 - `./mvnw spring-boot:run` for dev, `./mvnw test` for tests.
 - Requires MongoDB running (`shared-mongo-network` via `mongoBD/docker-compose.yml`).
+- RabbitMQ messaging: activity status transitions published to `activity.status.changed` queue with `@Retryable` (3 attempts, exponential backoff).
 
 ## bff-nest-js (NestJS BFF)
 

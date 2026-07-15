@@ -4,13 +4,16 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: spring-backend
-    # ports:
-    #   - "8080:8080"
+#    ports:
+#       - "8080:8080"
     environment:
       MONGO_USER: mongoUser
       MONGO_PASSWORD: mongoPwd
       # Exemplo de URI para o Spring se conectar:
       SPRING_DATA_MONGODB_URI: mongodb://mongoUser:mongoPwd@mongodb:27017/admin
+      RABBITMQ_USER: rabbitUser        # NOVO
+      RABBITMQ_PASSWORD: rabbitPwd
+      RABBITMQ_HOST: rabbitmq
     networks:
       - mongo-network # Conecta o backend na mesma rede do banco
       - back-network
