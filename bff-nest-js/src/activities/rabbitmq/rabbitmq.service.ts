@@ -1,6 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import type { Channel, ConsumeMessage } from 'amqplib';
 import * as amqpConnectionManager from 'amqp-connection-manager';
+import { ActivityEventService } from '../events/activity-event.service';
+import { ActivityStatusMessage } from './activity-status-message.interface';
 
 @Injectable()
 export class RabbitmqService implements OnModuleInit {
@@ -8,6 +10,11 @@ export class RabbitmqService implements OnModuleInit {
   private readonly QUEUE = 'activity.status.changed';
   private readonly EXCHANGE = 'activity.exchange';
   private readonly ROUTING_KEY = 'activity.status.changed';
+  private activityEventService: ActivityEventService;
+
+  constructor(activityEventService: ActivityEventService) {
+    this.activityEventService = activityEventService;
+  }
 
   onModuleInit() {
     const host = process.env.RABBITMQ_HOST || 'localhost';
@@ -26,12 +33,17 @@ export class RabbitmqService implements OnModuleInit {
         await ch.bindQueue(this.QUEUE, this.EXCHANGE, this.ROUTING_KEY);
         await ch.consume(this.QUEUE, (msg: ConsumeMessage | null) => {
           if (msg) {
-            const content = JSON.parse(msg.content.toString()) as Record<
-              string,
-              unknown
-            >;
+            const content = JSON.parse(
+              msg.content.toString(),
+            ) as ActivityStatusMessage;
             this.logger.log(`Received: ${JSON.stringify(content)}`);
-            ch.ack(msg);
+            try {
+              this.activityEventService.emit(content);
+              ch.ack(msg);
+            } catch (error) {
+              this.logger.error(`Error processing message: ${error}`);
+              ch.nack(msg, false, false); // false = don't requeue
+            }
           }
         });
       },

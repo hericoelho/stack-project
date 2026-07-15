@@ -1,6 +1,8 @@
+import { ActivityStatus } from '../dto/enum/activity-status.enum';
+
 export interface ActivityStatusMessage {
   activityId: string;
   title: string;
-  newStatus: string;
+  newStatus: ActivityStatus;
   timestamp: string;
 }

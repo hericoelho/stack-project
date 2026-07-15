@@ -161,7 +161,150 @@ environment:
 ### Status de implementação
 
 - [x] **Etapa 1**: RabbitMQ consumer — conectar à fila e receber mensagens
-- [ ] **Etapa 2**: SSE — broadcast das mensagens consumidas para o frontend
+- [x] **Etapa 2**: SSE — broadcast das mensagens consumidas para o frontend
+
+---
+
+## SSE (Server-Sent Events) — Etapa 2
+
+### Arquitetura
+
+```
+Spring Boot ──publish──▶ RabbitMQ (activity.status.changed)
+                              │
+                              ▼
+                     RabbitmqService.consumer()
+                              │
+                              ▼
+                    ActivityEventService.emit(msg)
+                              │
+                              ▼ (RxJS Subject)
+                    ActivitiesSseController.stream()
+                              │ (SSE via Express)
+                              ▼
+                   Frontend (EventSource /activities/stream)
+```
+
+### Padrão: Event Bus interno com RxJS Subject
+
+Separa RMQ consumer, SSE broadcast e REST em camadas independentes.
+
+| Camada | Arquivo | Papel |
+|--------|---------|-------|
+| **MessageBus** | `src/activities/events/activity-event.service.ts` | RxJS `Subject<ActivityStatusMessage>` — desacopla produtores de consumidores |
+| **Producer** | `src/activities/rabbitmq/rabbitmq.service.ts` | Consome RMQ e chama `emit()` no MessageBus |
+| **Consumer** | `src/activities/activities-sse.controller.ts` | Controller com `@Sse()` — inscreve no Observable do MessageBus |
+| **Module** | `src/activities/activities.module.ts` | Registra todos os providers e controllers |
+
+### ActivityEventService (MessageBus interno)
+
+```typescript
+@Injectable()
+export class ActivityEventService {
+  private readonly subject = new Subject<ActivityStatusMessage>();
+
+  emit(message: ActivityStatusMessage): void {
+    this.subject.next(message);
+  }
+
+  get events$(): Observable<ActivityStatusMessage> {
+    return this.subject.asObservable();
+  }
+}
+```
+
+### ActivitiesSseController
+
+```typescript
+@Controller('activities')
+export class ActivitiesSseController {
+  constructor(private readonly eventService: ActivityEventService) {}
+
+  @Sse('stream')
+  @Header('Cache-Control', 'no-cache')
+  stream(): Observable<MessageEvent> {
+    return this.eventService.events$.pipe(
+      map((msg) => ({ data: msg }) as MessageEvent),
+    );
+  }
+}
+```
+
+URL: `GET /activities/stream`
+
+### RabbitmqService — integração com MessageBus
+
+```typescript
+constructor(
+  private readonly activityEventService: ActivityEventService,
+) {}
+
+// dentro do setup callback do createChannel:
+ch.consume(this.QUEUE, (msg: ConsumeMessage | null) => {
+  if (msg) {
+    const content = JSON.parse(msg.content.toString()) as ActivityStatusMessage;
+    try {
+      this.activityEventService.emit(content);
+      ch.ack(msg);
+    } catch (error) {
+      this.logger.error(`Error processing message: ${error}`);
+      ch.nack(msg, false, false);
+    }
+  }
+});
+```
+
+### Tipagem forte com ActivityStatus
+
+A interface `ActivityStatusMessage` usa o enum `ActivityStatus` em vez de `string`:
+
+```typescript
+import { ActivityStatus } from '../dto/enum/activity-status.enum';
+
+export interface ActivityStatusMessage {
+  activityId: string;
+  title: string;
+  newStatus: ActivityStatus;
+  timestamp: string;
+}
+```
+
+### Registro no Module
+
+```typescript
+@Module({
+  imports: [HttpModule],
+  controllers: [ActivitiesController, ActivitiesSseController],
+  providers: [
+    ActivitiesService,
+    ActivitiesMicroserviceClient,
+    RabbitmqService,
+    ActivityEventService,
+  ],
+})
+export class ActivitiesModule {}
+```
+
+### Como testar (sem frontend)
+
+```bash
+curl -N http://localhost:3000/activities/stream
+# em outro terminal:
+curl -X POST http://localhost:3000/activities \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Teste","description":"Testing","type":"STUDY"}'
+```
+
+### Boas práticas aplicadas
+
+| Prática | Como foi aplicado |
+|---------|------------------|
+| **SRP** | RMQ consume ≠ SSE broadcast ≠ REST HTTP (classes separadas) |
+| **DIP** | `RabbitmqService` e `ActivitiesSseController` dependem da abstração `ActivityEventService`, não um do outro |
+| **NestJS idiomático** | `@Sse()` com `Observable`, `@Injectable()`, constructor injection |
+| **Type safety** | `Subject<ActivityStatusMessage>`, cast tipado no RMQ, enum compartilhado |
+| **Error handling** | try/catch no consume com `nack` — mensagem não é perdida silenciosamente |
+| **Cache-Control** | Headers SSE com `no-cache` para evitar buffering |
 
 ### Possíveis problemas
 
@@ -172,3 +315,6 @@ environment:
 | `connect ECONNREFUSED` | RabbitMQ não está rodando | Suba `queueRabbitMQ` primeiro |
 | `ACCESS_REFUSED` | Credenciais erradas | Verifique `RABBITMQ_USER` / `RABBITMQ_PASS` |
 | ESLint `unsafe` errors | Tipos não resolvidos do `amqplib` | Usar `import type` + cast explícito |
+| SSE não recebe eventos | `RabbitmqService` não injeta `ActivityEventService` | Verificar constructor com `private readonly` |
+| `TypeError: Cannot read properties of undefined (reading 'emit')` | Campo declarado com `!:` sem constructor injection | Usar constructor injection do NestJS |
+| `curl -N` não mostra nada | Mensagem do RMQ não chegou (delay de 2min) ou BFF não consumiu | Verificar logs `[RabbitmqService] Received:` |
