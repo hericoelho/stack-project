@@ -1,0 +1,25 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      # - "5672:5672"   # Porta de comunicação da aplicação (AMQP)
+      - "15672:15672" # Porta da Interface Web de Gerenciamento
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitUser
+      - RABBITMQ_DEFAULT_PASS=rabbitPwd
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_logs:/var/log/rabbitmq
+    networks:
+      - back-network
+
+volumes:
+  rabbitmq_data:
+  rabbitmq_logs:
+
+networks:
+  back-network:
+    external: true # Diz ao Compose para usar a rede já criada pelo arquivo incluído
+    name: shared-back-network
