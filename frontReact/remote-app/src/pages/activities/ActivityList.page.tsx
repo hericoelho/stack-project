@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useGetActivities } from './hooks/useGetActivities.hook'
+import { useActivityStream } from './hooks/use-activity-stream';
 
 const STATUS_STYLES: Record<string, string> = {
   PREPARING: 'bg-yellow-100 text-yellow-800 ring-yellow-600/20 dark:bg-yellow-900/30 dark:text-yellow-300 dark:ring-yellow-500/30',
@@ -12,8 +14,24 @@ const STATUS_LABELS: Record<string, string> = {
   DONE: 'Concluído',
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  STUDY: 'Estudo',
+  PROJECT: 'Projeto',
+  READING: 'Leitura',
+  EVENT: 'Evento',
+}
+
 function ActivityList() {
   const { activities, isLoading, error } = useGetActivities()
+
+  const event = useActivityStream();
+
+  useEffect(() => {
+    if (event) {
+      console.log('[SSE] Activity status changed:', event);
+      console.log(`[SSE] Atividade "${event.title}" (${event.activityId}) mudou para ${event.newStatus}`);
+    }
+  }, [event]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -61,9 +79,9 @@ function ActivityList() {
                 </div>
                 <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700 pt-3 mt-auto">
                   <span className="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-700 px-2 py-1 font-medium text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/10 dark:ring-gray-600/30">
-                    {activity.type}
+                    {TYPE_LABELS[activity.type] || activity.type}
                   </span>
-                  <time>{new Date(activity.createdAt).toLocaleDateString('pt-BR')}</time>
+                  <time>{activity.createdAt}</time>
                 </div>
               </div>
             )

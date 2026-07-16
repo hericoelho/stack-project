@@ -48,3 +48,84 @@ npm run preview   # vite preview (serve built dist)
 - The `@originjs/vite-plugin-federation` plugin must be added to `vite.config.ts`.
 - The remote exposes components via `exposes` config. The host consumes them via `remotes`.
 - Since this app also has its own router, exported page components should include their route tree, or the remote exports the full `<App>` which the host mounts at a path.
+
+## SSE Consumer — Conexão com BFF NestJS
+
+A remote-app consome eventos SSE do BFF (`http://localhost:3000/activities/stream`) para receber em tempo real as transições de status das atividades.
+
+### Hook customizado
+
+`src/pages/activities/hooks/use-activity-stream.ts`:
+
+```typescript
+import { useState, useEffect } from 'react';
+
+export interface ActivityStatusMessage {
+  activityId: string;
+  title: string;
+  newStatus: 'PREPARING' | 'PLAN' | 'DONE';
+  timestamp: string;
+}
+
+export function useActivityStream(): ActivityStatusMessage | null {
+  const [event, setEvent] = useState<ActivityStatusMessage | null>(null);
+
+  useEffect(() => {
+    const baseUrl = import.meta.env.VITE_BFF_API_BASE_URL || 'http://localhost:3000';
+    const source = new EventSource(`${baseUrl}/activities/stream`);
+
+    source.onmessage = (e: MessageEvent) => {
+      const data = JSON.parse(e.data) as ActivityStatusMessage;
+      setEvent(data);
+    };
+
+    source.onerror = () => {
+      console.error('SSE connection error', source.readyState);
+    };
+
+    return () => source.close();
+  }, []);
+
+  return event;
+}
+```
+
+### Variável de ambiente
+
+Em `.env` (dev):
+
+```env
+VITE_BFF_URL=http://localhost:3000
+```
+
+Em `.env.production` (Docker):
+
+```env
+VITE_BFF_URL=http://bff:3000
+```
+
+### Considerações
+
+| Item | Detalhe |
+|------|---------|
+| **URL** | `VITE_BFF_URL` + `/activities/stream` |
+| **Reconexão** | `EventSource` reconecta automaticamente |
+| **Tipagem** | Interface local no hook (sem enum, compatível com `erasableSyntaxOnly`) |
+| **CORS** | BFF já tem `cors: true` em `main.ts` |
+| **Cleanup** | `source.close()` no `useEffect` cleanup |
+| **onmessage** | `@Sse()` padrão emite evento `message` genérico |
+
+### Possíveis problemas
+
+| Problema | Causa | Solução |
+|----------|-------|---------|
+| Conexão não estabelece | BFF não está rodando ou URL errada | Verificar `VITE_BFF_URL` e `curl -N http://localhost:3000/activities/stream` |
+| `Unexpected token <` no SSE | BFF retornou HTML (404) | Verificar rota `/activities/stream` no BFF |
+| Dados não chegam | Mensagem não publicada no RabbitMQ ou BFF não consumiu | Verificar logs BFF: `[RabbitmqService] Received:` |
+| Múltiplas conexões abertas | Componente remonta sem limpar | Confirmar que `source.close()` é chamado no cleanup |
+
+### Fluxo
+
+```
+Spring Boot → RabbitMQ → BFF consume → Subject → SSE → EventSource → Hook → Componente
+```
