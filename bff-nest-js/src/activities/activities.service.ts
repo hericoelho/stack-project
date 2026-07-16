@@ -3,6 +3,7 @@ import { ActivitiesMicroserviceClient } from './client/back-spring-microservice.
 import { CreateActivityRequestDto } from './dto/CreateActivityRequest.dto';
 import { CreateActivityResponseDto } from './dto/CreateActivityResponse.dto';
 import { CreateActivityDto } from './dto/ActivityResponse.dto';
+import { formatDate } from './utils/date-formatter.util';
 
 @Injectable()
 export class ActivitiesService {
@@ -28,18 +29,7 @@ export class ActivitiesService {
   ): CreateActivityDto {
     return {
       ...dto,
-      createdAt: this.formatDate(dto.createdAt),
+      createdAt: formatDate(dto.createdAt),
     };
-  }
-
-  private formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   }
 }
