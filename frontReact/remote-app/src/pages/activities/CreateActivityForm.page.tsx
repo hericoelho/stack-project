@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useCreateActivity } from './hooks/useCreateActivity.hook'
+import type { ActivityType } from './types/activity.types'
+import { TYPE_LABELS } from './utils/activityLabels.util'
 
 function CreateActivityForm() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [type, setType] = useState('STUDY')
+  const [type, setType] = useState<ActivityType>('STUDY')
 
   const { createActivity, isPending, error } = useCreateActivity()
 
@@ -64,13 +66,13 @@ function CreateActivityForm() {
             <select
               id="type"
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={(e) => setType(e.target.value as ActivityType)}
               className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
             >
-              <option value="STUDY">Estudo</option>
-              <option value="PROJECT">Projeto</option>
-              <option value="READING">Leitura</option>
-              <option value="EVENT">Evento</option>
+              {(Object.entries(TYPE_LABELS) as [ActivityType, string][]).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+
             </select>
           </div>
         </div>
