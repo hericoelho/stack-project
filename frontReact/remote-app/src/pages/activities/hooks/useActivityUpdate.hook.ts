@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useActivityStream } from './useActivityStream.hook';
-import type { Activity } from '../types/activity.types';
+import type { Activity, ActivityStatusMessage } from '../types/activity.types';
+import { useSseContext } from '../../../contexts/SseContext';
 
 export function useActivityUpdate() {
   const queryClient = useQueryClient();
-  const event = useActivityStream();
+  const event = useSseContext<ActivityStatusMessage>();
 
   useEffect(() => {
     if (event) {
