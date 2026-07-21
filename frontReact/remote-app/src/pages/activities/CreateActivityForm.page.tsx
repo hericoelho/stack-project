@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCreateActivity } from './hooks/useCreateActivity.hook'
 import type { ActivityType } from './types/activity.types'
 import { TYPE_LABELS } from './utils/activityLabels.util'
+import Error from '../../components/Erro';
 
 function CreateActivityForm() {
   const [title, setTitle] = useState('')
@@ -21,11 +22,7 @@ function CreateActivityForm() {
         Criar Atividade
       </h1>
 
-      {error && (
-        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 mb-6">
-          <p className="text-sm text-red-700 dark:text-red-400">{error.message}</p>
-        </div>
-      )}
+      {error && <Error message={error.message} />}
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
         <div className="space-y-5">
